@@ -9,24 +9,22 @@ class MTGox:
         self.user = user
         self.password = password
         self.server = "mtgox.com"
-        self.paths = {"ticker": "/code/data/ticker.php",
-                      "depth": "/code/data/getDepth.php",
-                      "trades": "/code/data/getTrades.php",
-                      "balance": "/code/getFunds.php",
-                      "buy": "/code/buyBTC.php",
-                      "sell": "/code/sellBTC.php",
-                      "get_orders": "/code/getOrders.php",
-                      "cancel_order": "/code/cancelOrder.php",
-                      "withdraw": "/code/withdraw.php"}
-
-    def ticker(self):
-        return self._get("ticker")
-
-    def trades(self):
-        return self._get("trades")
-
-    def depth(self):
-        return self._get("depth")
+        self.functions = {"ticker": "/code/data/ticker.php",
+                          "depth": "/code/data/getDepth.php",
+                          "trades": "/code/data/getTrades.php",
+                          "balance": "/code/getFunds.php",
+                          "buy": "/code/buyBTC.php",
+                          "sell": "/code/sellBTC.php",
+                          "get_orders": "/code/getOrders.php",
+                          "cancel_order": "/code/cancelOrder.php",
+                          "withdraw": "/code/withdraw.php"}
+        
+        simple_funcs = ("ticker", "depth", "trades")
+        for func in self.functions.keys():
+            if func in simple_funcs:
+                setattr(self, func, lambda func=func: self._get(func))
+            else:
+                setattr(self, func, lambda **args: self._post(func, args))
 
     def _get(self, func):
         h = httplib2.Http(cache=None)
@@ -53,6 +51,6 @@ class MTGox:
             query["name"] = self.user
             query["pass"] = self.password
         querys = urlencode(query)
-        url = urlunparse((scheme, self.server, self.paths[func], '', querys, ''))
+        url = urlunparse((scheme, self.server, self.functions[func], '', querys, ''))
         return url
 
