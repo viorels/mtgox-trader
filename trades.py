@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-import httplib2
-import simplejson
 import time
 
-h = httplib2.Http(cache=None)
-resp, content = h.request("http://mtgox.com/code/data/getTrades.php", "GET")
-trades = simplejson.loads(content)
+from mtgox import MTGox
+import settings
+
+mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
+trades = mtgox.trades()
 
 now = time.time()
 for tr in trades:

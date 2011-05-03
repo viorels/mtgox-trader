@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import httplib2
-import simplejson
-import time
+from mtgox import MTGox
+import settings
 
-h = httplib2.Http(cache=None)
-resp, content = h.request("http://mtgox.com/code/data/getDepth.php", "GET")
-depth = simplejson.loads(content)
+mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
+depth = mtgox.depth()
 
 bids = sorted(depth['bids'], key=lambda bid: bid[0])
 asks = sorted(depth['asks'], key=lambda bid: bid[0])

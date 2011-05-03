@@ -1,25 +1,14 @@
 #!/usr/bin/env python
 
-import httplib2
-import simplejson
+from mtgox import MTGox
+import settings
 
-h = httplib2.Http(cache=None)
-try:
-    resp, content = h.request("http://mtgox.com/code/data/ticker.php", "GET")
-except AttributeError, e: # 'NoneType' object has no attribute 'makefile'
-    print "timeout/refused"
-    exit(1)
+mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
+ticker = mtgox.ticker()
 
-try:
-    ticker = simplejson.loads(content)
-except simplejson.decoder.JSONDecodeError, e:
-    print "%s\n%s" % (e, content)
-    exit(2)
-
-if resp["status"] == '200':
-    keys = ("last", "buy", "sell", "low", "high", "vol")
-    for key in keys:
+if ticker:
+    for key in ("last", "buy", "sell", "low", "high", "vol"):
         print "%s\t: %s" % (key, ticker["ticker"][key])
 else:
-    print "Unexpected response: %s\n%s" % (resp, content)
+    print "failed, see logs"
 
