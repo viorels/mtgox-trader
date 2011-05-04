@@ -1,7 +1,21 @@
+
 from httplib2 import Http
-import simplejson
+import simplejson as json
+from simplejson.decoder import JSONDecodeError
 from urlparse import urlunparse
 from urllib import urlencode
+
+class ServerError(Exception):
+    def __init__(self, ret):
+        self.ret = ret
+    def __str__(self):
+        return "Server error: %s" % self.ret
+
+class UserError(Exception):
+    def __init__(self, errmsg):
+        self.errmsg = errmsg
+    def __str__(self):
+        return self.errmsg
 
 class MTGox:
     """MTGox API"""
@@ -9,6 +23,7 @@ class MTGox:
         self.user = user
         self.password = password
         self.server = "mtgox.com"
+        self.timeout = 10
         self.actions = {"ticker": "/code/data/ticker.php",
                         "depth": "/code/data/getDepth.php",
                         "trades": "/code/data/getTrades.php",
@@ -41,20 +56,23 @@ class MTGox:
             data = urlencode(query)
             headers['Content-type'] = 'application/x-www-form-urlencoded'
 
-        h = Http(cache=None, timeout=10)
+        h = Http(cache=None, timeout=self.timeout)
         try:
-            # TODO: timeout in a few seconds
             #print "%s %s\n> |%s|" % (method, url, data)
             resp, content = h.request(url, method, headers=headers, body=data)
             #print "< %s (%s)" % (content, resp)
-            content_json = simplejson.loads(content)
+            if resp["status"] == "200":
+                data = json.loads(content)
+                if "error" in data:
+                    raise UserError(data["error"])
+                else:
+                    return data 
+            else:
+                raise ServerError(content)
         except AttributeError, e: # 'NoneType' object has no attribute 'makefile'
-            print "timeout/refused"
-            return None
-        except simplejson.decoder.JSONDecodeError, e:
-            print "%s\n%s" % (e, content)
-            return None
-        return content_json
+            raise ServerError("timeout/refused")
+        except JSONDecodeError, e:
+            raise ServerError("%s: %s" % (e, content))
 
     def _url(self, action, scheme="http", args={}):
         url = urlunparse((scheme,
