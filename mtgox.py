@@ -42,6 +42,9 @@ class MTGox:
     def get_ticker(self):
         return self._get_ticker()["ticker"]
 
+    def get_orders(self):
+        return self._get_orders()["orders"]
+
     def _request(self, action, method="GET", args={}):
         query = args.copy()
         data = None
