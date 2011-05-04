@@ -1,4 +1,4 @@
-import httplib2
+from httplib2 import Http
 import simplejson
 from urlparse import urlunparse
 from urllib import urlencode
@@ -30,21 +30,23 @@ class MTGox:
 
     def _request(self, action, method="GET", args={}):
         query = args.copy()
+        data = None
+        headers = {}
         if method == "GET":
             url = self._url(action)
-            data = None
         if method == "POST":
             url = self._url(action, scheme="https")
             query["name"] = self.user
             query["pass"] = self.password
             data = urlencode(query)
+            headers['Content-type'] = 'application/x-www-form-urlencoded'
 
-        h = httplib2.Http(cache=None)
+        h = Http(cache=None, timeout=10)
         try:
             # TODO: timeout in a few seconds
-            print "%s %s\n> %s" % (method, url, data)
-            resp, content = h.request(url, method, data)
-            print "< %s" % content
+            #print "%s %s\n> |%s|" % (method, url, data)
+            resp, content = h.request(url, method, headers=headers, body=data)
+            #print "< %s (%s)" % (content, resp)
             content_json = simplejson.loads(content)
         except AttributeError, e: # 'NoneType' object has no attribute 'makefile'
             print "timeout/refused"
