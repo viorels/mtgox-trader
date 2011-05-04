@@ -4,7 +4,7 @@ from mtgox import MTGox
 import settings
 
 mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
-depth = mtgox.depth()
+depth = mtgox.get_depth()
 
 bids = sorted(depth['bids'], key=lambda bid: bid[0])
 asks = sorted(depth['asks'], key=lambda bid: bid[0])

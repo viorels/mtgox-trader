@@ -6,7 +6,7 @@ from mtgox import MTGox
 import settings
 
 mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
-trades = mtgox.trades()
+trades = mtgox.get_trades()
 
 now = time.time()
 for tr in trades:
