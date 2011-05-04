@@ -9,28 +9,42 @@ class MTGox:
         self.user = user
         self.password = password
         self.server = "mtgox.com"
-        self.functions = {"ticker": "/code/data/ticker.php",
-                          "depth": "/code/data/getDepth.php",
-                          "trades": "/code/data/getTrades.php",
-                          "balance": "/code/getFunds.php",
-                          "buy": "/code/buyBTC.php",
-                          "sell": "/code/sellBTC.php",
-                          "get_orders": "/code/getOrders.php",
-                          "cancel_order": "/code/cancelOrder.php",
-                          "withdraw": "/code/withdraw.php"}
+        self.actions = {"ticker": "/code/data/ticker.php",
+                        "depth": "/code/data/getDepth.php",
+                        "trades": "/code/data/getTrades.php",
+                        "balance": "/code/getFunds.php",
+                        "buy": "/code/buyBTC.php",
+                        "sell": "/code/sellBTC.php",
+                        "get_orders": "/code/getOrders.php",
+                        "cancel_order": "/code/cancelOrder.php",
+                        "withdraw": "/code/withdraw.php"}
         
-        simple_funcs = ("ticker", "depth", "trades")
-        for func in self.functions.keys():
-            if func in simple_funcs:
-                setattr(self, func, lambda func=func: self._get(func))
-            else:
-                setattr(self, func, lambda **args: self._post(func, args))
+        simple_actions = ("ticker", "depth", "trades")
+        for action in self.actions.keys():
+            def _handler(action=action, **args):
+                if action in simple_actions:
+                    return self._request(action)
+                else:
+                    return self._request(action, method="POST", args=args)
+            setattr(self, action, _handler)
 
-    def _get(self, func):
+    def _request(self, action, method="GET", args={}):
+        query = args.copy()
+        if method == "GET":
+            url = self._url(action)
+            data = None
+        if method == "POST":
+            url = self._url(action, scheme="https")
+            query["name"] = self.user
+            query["pass"] = self.password
+            data = urlencode(query)
+
         h = httplib2.Http(cache=None)
         try:
             # TODO: timeout in a few seconds
-            resp, content = h.request(self._url(func), "GET")
+            print "%s %s\n> %s" % (method, url, data)
+            resp, content = h.request(url, method, data)
+            print "< %s" % content
             content_json = simplejson.loads(content)
         except AttributeError, e: # 'NoneType' object has no attribute 'makefile'
             print "timeout/refused"
@@ -40,17 +54,12 @@ class MTGox:
             return None
         return content_json
 
-    def _post(self, func, **args):
-        pass
-
-    def _url(self, func, args={}, auth=False):
-        scheme = 'http'
-        query = args.copy()
-        if auth:
-            scheme = 'https'
-            query["name"] = self.user
-            query["pass"] = self.password
-        querys = urlencode(query)
-        url = urlunparse((scheme, self.server, self.functions[func], '', querys, ''))
+    def _url(self, action, scheme="http", args={}):
+        url = urlunparse((scheme,
+                          self.server,
+                          self.actions[action],
+                          '',
+                          urlencode(args),
+                          ''))
         return url
 
