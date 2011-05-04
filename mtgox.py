@@ -32,7 +32,7 @@ class MTGox:
                         "sell_btc": ("POST", "/code/sellBTC.php"),
                         "_get_orders": ("POST", "/code/getOrders.php"),
                         "_cancel_order": ("POST", "/code/cancelOrder.php"),
-                        "withdraw": ("POST", "/code/withdraw.php")}
+                        "_withdraw": ("POST", "/code/withdraw.php")}
         
         for action, (method, _) in self.actions.items():
             def _handler(action=action, **args):
@@ -43,7 +43,10 @@ class MTGox:
         return self._get_ticker()["ticker"]
 
     def get_orders(self):
-        return self._get_orders()["orders"]
+        return self._get_orders()["orders"] # can also return balance
+
+    def withdraw(self, amount, btca, group1="BTC"):
+        return self._withdraw(amount=amount, btca=btca, group1=group1)["status"] # can also return balance
 
     def _request(self, action, method="GET", args={}):
         query = args.copy()
