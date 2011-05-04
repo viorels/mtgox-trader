@@ -60,7 +60,7 @@ class MTGox:
             #print "%s %s\n> |%s|" % (method, url, data)
             resp, content = h.request(url, method, headers=headers, body=data)
             #print "< %s (%s)" % (content, resp)
-            if resp["status"] == "200":
+            if resp.status == 200:
                 data = json.loads(content)
                 if "error" in data:
                     raise UserError(data["error"])
