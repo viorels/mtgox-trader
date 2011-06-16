@@ -44,6 +44,17 @@ class MTGox:
     def get_orders(self):
         return self._get_orders()["orders"] # can also return balance
 
+    def cancel_order(self, oid, typ=None):
+        orders = self.get_orders()
+        if typ is None:
+            order = [o for o in orders if o["oid"] == oid]
+            if order:
+                typ = order[0]["type"]
+            else:
+                raise UserError("unknown order/type")
+        return self._cancel_order(oid=oid, type=typ)
+
+
     def withdraw(self, amount, btca, group1="BTC"):
         return self._withdraw(amount=amount, btca=btca, group1=group1)["status"] # can also return balance
 
