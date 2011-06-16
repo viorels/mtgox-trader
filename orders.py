@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-from mtgox import MTGox
-import settings
+from settings import *
 
-mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
-orders = mtgox.get_orders()
+orders = exchange.get_orders()
 print orders
 

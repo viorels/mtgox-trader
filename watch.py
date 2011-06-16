@@ -2,10 +2,7 @@
 
 import time
 
-from mtgox import MTGox
-import settings
-
-mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
+from settings import *
 
 wait = 60
 
@@ -14,7 +11,7 @@ last_bids = []
 last_asks = []
 
 while True:
-    trades = mtgox.get_trades()
+    trades = exchange.get_trades()
 
     now = time.time()
     for tr in trades:
@@ -29,7 +26,7 @@ while True:
     time.sleep(wait)
     continue
 
-    depth = mtgox.get_depth()
+    depth = exchange.get_depth()
 
     bids = sorted(depth['bids'], key=lambda bid: bid[0])
     asks = sorted(depth['asks'], key=lambda bid: bid[0])

@@ -1,7 +1,7 @@
 
 from httplib2 import Http
 import simplejson as json
-from simplejson.decoder import JSONDecodeError
+#from simplejson.decoder import JSONDecodeError
 from urlparse import urlunparse
 from urllib import urlencode
 
@@ -76,8 +76,8 @@ class MTGox:
                 raise ServerError(content)
         except AttributeError, e: # 'NoneType' object has no attribute 'makefile'
             raise ServerError("timeout/refused")
-        except JSONDecodeError, e:
-            raise ServerError("%s: %s" % (e, content))
+        #except JSONDecodeError, e:
+            #raise ServerError("%s: %s" % (e, content))
 
     def _url(self, action, scheme="http", args={}):
         url = urlunparse((scheme,
@@ -87,4 +87,19 @@ class MTGox:
                           urlencode(args),
                           ''))
         return url
+
+class ExchB(MTGox):
+    def __init__(self,user,password):
+	MTGox.__init__(self,user,password) 
+        self.server = "www.exchangebitcoins.com"
+        self.actions = {"_get_ticker": ("GET", "/data/ticker"),
+                        "get_depth": ("GET", "/data/depth"),
+                        "get_trades": ("GET", "/data/recent"),
+                        "get_balance": ("POST", "/data/getFunds"),
+                        "buy_btc": ("POST", "/data/buyBTC"),
+                        "sell_btc": ("POST", "/data/sellBTC"),
+                        "_get_orders": ("POST", "/data/getOrders"),
+                        "_cancel_order": ("POST", "/data/cancelOrder")}
+        
+	
 
