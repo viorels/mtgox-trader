@@ -1,7 +1,6 @@
 
 from httplib2 import Http
 import simplejson as json
-#from simplejson.decoder import JSONDecodeError
 from urlparse import urlunparse
 from urllib import urlencode
 
@@ -76,8 +75,8 @@ class MTGox:
                 raise ServerError(content)
         except AttributeError, e: # 'NoneType' object has no attribute 'makefile'
             raise ServerError("timeout/refused")
-        #except JSONDecodeError, e:
-            #raise ServerError("%s: %s" % (e, content))
+        except ValueError, e:
+            raise ServerError("%s: %s" % (e, content))
 
     def _url(self, action, scheme="http", args={}):
         url = urlunparse((scheme,
