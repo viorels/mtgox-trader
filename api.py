@@ -98,3 +98,18 @@ class MTGox:
                           ''))
         return url
 
+class ExchB(MTGox):
+    def __init__(self,user,password):
+	MTGox.__init__(self,user,password) 
+        self.server = "www.exchangebitcoins.com"
+        self.actions = {"_get_ticker": ("GET", "/data/ticker"),
+                        "get_depth": ("GET", "/data/depth"),
+                        "get_trades": ("GET", "/data/recent"),
+                        "get_balance": ("POST", "/data/getFunds"),
+                        "buy_btc": ("POST", "/data/buyBTC"),
+                        "sell_btc": ("POST", "/data/sellBTC"),
+                        "_get_orders": ("POST", "/data/getOrders"),
+                        "_cancel_order": ("POST", "/data/cancelOrder")}
+        
+	
+

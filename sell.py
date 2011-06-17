@@ -2,8 +2,7 @@
 
 import sys
 
-from mtgox import MTGox
-import settings
+from settings import *
 
 if len(sys.argv) in (2, 3):
     amount = sys.argv[1]
@@ -12,7 +11,6 @@ else:
     print "Usage: %s <amount> [ask]" % sys.argv[0]
     exit(1)
 
-mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
-status = mtgox.sell_btc(amount=amount, price=ask)
+status = exchange.sell_btc(amount=amount, price=ask)
 print status
 

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-from mtgox import MTGox
-import settings
+from settings import *
 
-mtgox = MTGox(user=settings.MTGOX_USER, password=settings.MTGOX_PASSWORD)
-ticker = mtgox.get_ticker()
+ticker = exchange.get_ticker()
 
 if ticker:
     for key in ("last", "buy", "sell", "low", "high", "vol"):
